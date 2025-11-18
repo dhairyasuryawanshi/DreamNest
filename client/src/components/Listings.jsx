@@ -18,8 +18,8 @@ const Listings = () => {
     try {
       const response = await fetch(
         selectedCategory !== "All"
-          ? `http://localhost:3001/properties?category=${selectedCategory}`
-          : "http://localhost:3001/properties",
+          ? `http://https://dreamnest-g3ay.onrender.com/properties?category=${selectedCategory}`
+          : "http://https://dreamnest-g3ay.onrender.com/properties",
         {
           method: "GET",
         }

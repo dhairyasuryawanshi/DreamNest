@@ -21,7 +21,7 @@ const ReservationList = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/users/${userId}/reservations`
+        `http://https://dreamnest-g3ay.onrender.com/users/${userId}/reservations`
       );
 
       const data = await response.json();
