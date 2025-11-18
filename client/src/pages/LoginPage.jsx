@@ -13,34 +13,41 @@ const LoginPage = () => {
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-
+    e.preventDefault();
+  
     try {
-      const response = await fetch ("http://localhost:3001/auth/login", {
+      const response = await fetch("http://localhost:3001/auth/login", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password })
-      })
-
-      /* Get data after fetching */
-      const loggedIn = await response.json()
-
-      if (loggedIn) {
-        dispatch (
-          setLogin({
-            user: loggedIn.user,
-            token: loggedIn.token
-          })
-        )
-        navigate("/")
+        body: JSON.stringify({ email, password }),
+      });
+  
+      const data = await response.json();
+  
+      // ❌ If login failed
+      if (!response.ok) {
+        alert(data.message || "Invalid email or password!");
+        return;
       }
-
+  
+      // ✅ If login successful
+      dispatch(
+        setLogin({
+          user: data.user,
+          token: data.token,
+        })
+      );
+  
+      navigate("/");
+  
     } catch (err) {
-      console.log("Login failed", err.message)
+      console.log("Login failed", err.message);
+      alert("Something went wrong. Please try again.");
     }
-  }
+  };
+  
 
   return (
     <div className="login">

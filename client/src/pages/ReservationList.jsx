@@ -9,18 +9,19 @@ import Footer from "../components/Footer"
 
 const ReservationList = () => {
   const [loading, setLoading] = useState(true);
-  const userId = useSelector((state) => state.user._id);
-  const reservationList = useSelector((state) => state.user.reservationList);
+
+  // Protect against null user
+  const userId = useSelector((state) => state.user?._id);
+  const reservationList = useSelector((state) => state.user?.reservationList);
 
   const dispatch = useDispatch();
 
   const getReservationList = async () => {
+    if (!userId) return; // Prevent early call
+
     try {
       const response = await fetch(
-        `http://localhost:3001/users/${userId}/reservations`,
-        {
-          method: "GET",
-        }
+        `http://localhost:3001/users/${userId}/reservations`
       );
 
       const data = await response.json();
@@ -32,8 +33,10 @@ const ReservationList = () => {
   };
 
   useEffect(() => {
-    getReservationList();
-  }, []);
+    if (userId) {
+      getReservationList();
+    }
+  }, [userId]);
 
   return loading ? (
     <Loader />
@@ -42,21 +45,43 @@ const ReservationList = () => {
       <Navbar />
       <h1 className="title-list">Your Reservation List</h1>
       <div className="list">
-        {reservationList?.map(({ listingId, hostId, startDate, endDate, totalPrice, booking=true }) => (
-          <ListingCard
-            listingId={listingId._id}
-            creator={hostId._id}
-            listingPhotoPaths={listingId.listingPhotoPaths}
-            city={listingId.city}
-            province={listingId.province}
-            country={listingId.country}
-            category={listingId.category}
-            startDate={startDate}
-            endDate={endDate}
-            totalPrice={totalPrice}
-            booking={booking}
-          />
-        ))}
+
+        {/* 🔥 SAFE MAPPING */}
+        {reservationList
+          ?.filter(
+            (res) =>
+              res &&
+              res.listingId &&
+              res.hostId &&
+              res.listingId._id &&
+              res.hostId._id
+          )
+          .map(
+            ({
+              listingId,
+              hostId,
+              startDate,
+              endDate,
+              totalPrice,
+              booking = true,
+            }) => (
+              <ListingCard
+                key={listingId._id}
+                listingId={listingId._id}
+                creator={hostId._id}
+                listingPhotoPaths={listingId.listingPhotoPaths}
+                city={listingId.city}
+                province={listingId.province}
+                country={listingId.country}
+                category={listingId.category}
+                startDate={startDate}
+                endDate={endDate}
+                totalPrice={totalPrice}
+                booking={booking}
+              />
+            )
+          )}
+          
       </div>
       <Footer />
     </>

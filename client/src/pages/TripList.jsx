@@ -9,18 +9,16 @@ import Footer from "../components/Footer"
 
 const TripList = () => {
   const [loading, setLoading] = useState(true);
-  const userId = useSelector((state) => state.user._id);
-  const tripList = useSelector((state) => state.user.tripList);
+
+  const userId = useSelector((state) => state.user?._id);
+  const tripList = useSelector((state) => state.user?.tripList);
 
   const dispatch = useDispatch();
 
   const getTripList = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3001/users/${userId}/trips`,
-        {
-          method: "GET",
-        }
+        `http://localhost:3001/users/${userId}/trips`
       );
 
       const data = await response.json();
@@ -32,8 +30,10 @@ const TripList = () => {
   };
 
   useEffect(() => {
-    getTripList();
-  }, []);
+    if (userId) {
+      getTripList();
+    }
+  }, [userId]);
 
   return loading ? (
     <Loader />
@@ -42,21 +42,40 @@ const TripList = () => {
       <Navbar />
       <h1 className="title-list">Your Trip List</h1>
       <div className="list">
-        {tripList?.map(({ listingId, hostId, startDate, endDate, totalPrice, booking=true }) => (
-          <ListingCard
-            listingId={listingId._id}
-            creator={hostId._id}
-            listingPhotoPaths={listingId.listingPhotoPaths}
-            city={listingId.city}
-            province={listingId.province}
-            country={listingId.country}
-            category={listingId.category}
-            startDate={startDate}
-            endDate={endDate}
-            totalPrice={totalPrice}
-            booking={booking}
-          />
-        ))}
+        {tripList
+          ?.filter(
+            (trip) =>
+              trip &&
+              trip.listingId &&
+              trip.hostId &&
+              trip.listingId._id &&
+              trip.hostId._id
+          )
+          .map(
+            ({
+              listingId,
+              hostId,
+              startDate,
+              endDate,
+              totalPrice,
+              booking = true,
+            }) => (
+              <ListingCard
+                key={listingId._id}
+                listingId={listingId._id}
+                creator={hostId._id}
+                listingPhotoPaths={listingId.listingPhotoPaths}
+                city={listingId.city}
+                province={listingId.province}
+                country={listingId.country}
+                category={listingId.category}
+                startDate={startDate}
+                endDate={endDate}
+                totalPrice={totalPrice}
+                booking={booking}
+              />
+            )
+          )}
       </div>
       <Footer />
     </>
